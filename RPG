@@ -16,7 +16,7 @@ struct useraccount {
 
 struct stats {
     double damage, speed, luck, hp, exp, lvl, gold;
-    int extrastats,neededExp;
+    int extrastats, neededExp;
 };
 
 struct armaments {
@@ -41,10 +41,21 @@ public:
         system("cls");
     }
 
-    void expneeded(){
-    int baseexp = 100;
-    int expIncreasePerlevel = 50;
-    currentstats.neededExp = baseexp + (currentstats.lvl - 1) * expIncreasePerlevel;
+    void expneeded() {
+
+        currentstats.neededExp = (((currentstats.lvl * (currentstats.lvl - 1)) / 15) * 100) + 100;
+        return;
+    }
+
+    void gainExperience(int exp) {
+        currentstats.exp += exp;
+        cout << "Gained " << exp << " EXP! Total EXP: " << currentstats.exp << endl;
+        expneeded();
+        if (currentstats.exp >= currentstats.neededExp) {
+            currentstats.lvl++;
+            currentstats.exp -= currentstats.neededExp;
+            cout << "Congratulations! You've leveled up to level " << currentstats.lvl << "!" << endl;
+        }
     }
 
     bool isUsernameTaken(const string& username) {
@@ -146,7 +157,7 @@ public:
             return;
         }
 
-        string line;
+ string line;
         while (getline(inFile, line)) {
             stringstream ss(line);
             string username, password, role;
@@ -174,6 +185,8 @@ public:
                 currentstats.hp = stod(value);
                 getline(statsStream, value, ',');
                 currentstats.exp = stod(value);
+                currentstats.neededExp = stod(value);
+                getline(ss, value, ',');
                 getline(statsStream, value, ',');
                 currentstats.lvl = stod(value);
                 getline(statsStream, value, ',');
@@ -193,7 +206,7 @@ public:
             cout << "  HP: " << currentstats.hp << endl;
             cout << "  Luck: " << currentstats.luck << endl;
             cout << "  Level: " << currentstats.lvl << endl;
-            cout << "  EXP: " << currentstats.exp << endl;
+            cout << "  EXP: " << currentstats.exp <<"/"<<currentstats.neededExp<< endl;
             cout << "  Extra Stats: " << currentstats.extrastats << endl;
             cout << "  Speed: " << currentstats.speed << endl;
             cout << "  Gold: " << currentstats.gold << endl;
@@ -201,18 +214,18 @@ public:
         }
 
         inFile.close();
-
     }
 
-    void huntmonster(){
+    void huntmonster() {
         clr();
+
         ifstream inFile("gameaccount.txt");
         if (!inFile.is_open()) {
             cout << "Error: Unable to open accounts file!" << endl;
             return;
         }
 
-        string line;
+ string line;
         while (getline(inFile, line)) {
             stringstream ss(line);
             string username, password, role;
@@ -238,6 +251,8 @@ public:
                 currentstats.luck = stod(value);
                 getline(statsStream, value, ',');
                 currentstats.hp = stod(value);
+                currentstats.neededExp = stod(value);
+                getline(ss, value, ',');
                 getline(statsStream, value, ',');
                 currentstats.exp = stod(value);
                 getline(statsStream, value, ',');
@@ -251,144 +266,136 @@ public:
             }
 
             statsInFile.close();
-
-            cout << "Username: " << username << endl;
-            cout << "Role: " << role << endl;
-            cout << "Stats: " << endl;
-            cout << "  Damage: " << currentstats.damage << endl;
-            cout << "  HP: " << currentstats.hp << endl;
-            cout << "  Luck: " << currentstats.luck << endl;
-            cout << "  Level: " << currentstats.lvl << endl;
-            cout << "  EXP: " << currentstats.exp << endl;
-            cout << "  Extra Stats: " << currentstats.extrastats << endl;
-            cout << "  Speed: " << currentstats.speed << endl;
-            cout << "  Gold: " << currentstats.gold << endl;
-            cout << "-----------------------------" << endl;
         }
 
-        inFile.close();
-
         int huntnum;
-        int maxplayerhp = currentstats.hp;
-        int yourhp = currentstats.hp;
         cout << "Adventure Hunting!\n";
-        cout << "1.Rat (Required Level 1)\n";
-        cout << "2.Dogs (Required Level 5(COMING SOON))\n";
+        cout << "1. Rat (Required Level 1)\n";
         cin >> huntnum;
-        if (huntnum == 1){
-                random_device rd;
-                mt19937 gen(rd());
-                uniform_int_distribution<> hpDist(8, 15);
-                int randomHp = hpDist(gen);
-                uniform_int_distribution<> damageDist(2, 3);
-                int randomdamage = damageDist(gen);
-                uniform_int_distribution<> levelDist(1, 3);
-                int randomLevel = levelDist(gen);
-                int maxHp = randomHp;
-                int currentHp = randomHp;
+
+        if (huntnum == 1) {
+            random_device rd;
+            mt19937 gen(rd());
+            uniform_int_distribution<> hpDist(8, 15);
+            int randomHp = hpDist(gen);
+            uniform_int_distribution<> damageDist(2, 3);
+            int randomdamage = damageDist(gen);
+            uniform_int_distribution<> levelDist(1, 3);
+            int randomlevel = levelDist(gen);
+
+            int currentHp = randomHp;
+            int yourhp = currentstats.hp;
+            int yourdamage = currentstats.damage;
+            int yourlevel = currentstats.lvl;
+
+            cout << "           Rats ";
+                cout << "Stats!\n";
+                cout << "Level :" << randomlevel<<endl;
+                cout << "Hp :   " << currentHp << endl;
+                cout << "Damage:" << randomdamage << endl;
+
+            cout << "       Your stats\n";
+                cout << "Level :" <<yourlevel << endl;
+                cout << "HP:    " << yourhp << endl;
+                cout << "Damage:" << yourdamage<<endl;
+
+            Sleep(1000);
+
+            while (currentHp > 0 && yourhp > 0) {
                 clr();
-                cout << "           Rats!\n";
-    cout << "           Stats\n";
-    cout << "Level :" << randomLevel << endl;
-    cout << "Hp :   " << currentHp << "/" << maxHp << endl;
-    cout << "Damage:" << randomdamage << endl;
+                currentHp -= currentstats.damage;
+                yourhp -= randomdamage;
 
-    cout << "       Yourstats\n";
-    cout << "Level :" << currentstats.lvl << endl;
-    cout << "  EXP: " << currentstats.exp << "/" << currentstats.neededExp << endl;
-    cout << "HP: " << yourhp << "/" << maxplayerhp << endl;
-    cout << "  Damage: " << currentstats.damage << endl;
-    Sleep(1000);
-                while (currentHp > 0 && yourhp > 0) {
-    clr();
-    currentHp -= currentstats.damage;
-    yourhp -= randomdamage;
-    if (currentHp < 0) currentHp = 0;
-    if (yourhp < 0) yourhp = 0;
 
-    cout << "           Rats!\n";
-    cout << "           Stats\n";
-    cout << "Level :" << randomLevel << endl;
-    cout << "Hp :   " << currentHp << "/" << maxHp << endl;
-    cout << "Damage:" << randomdamage << endl;
+                if (currentHp < 0) currentHp = 0;
+                if (yourhp < 0) yourhp = 0;
 
-    cout << "       Yourstats\n";
-    cout << "Level :" << currentstats.lvl << endl;
-    cout << "  EXP: " << currentstats.exp << "/" << currentstats.neededExp << endl;
-    cout << "HP: " << yourhp << "/" << maxplayerhp << endl;
-    cout << "  Damage: " << currentstats.damage << endl;
+                cout << "           Rats ";
+                cout << "Stats!\n";
+                cout << "Level :" << randomlevel<<endl;
+                cout << "Hp :   " << currentHp << endl;
+                cout << "Damage:" << randomdamage << endl;
 
-    Sleep(1000);
-}
+                cout << "       Your stats\n";
+                cout << "Level :" <<yourlevel << endl;
+                cout << "HP:    " << yourhp << endl;
+                cout << "Damage:" << yourdamage<<endl;
+
+                Sleep(1000);
+            }
+
             if (currentHp <= 0 && yourhp > 0) {
-    cout << "You Won!";
-} else if (currentHp > 0 && yourhp <= 0) {
-    cout << "You Lose!";
-} else if (currentHp <= 0 && yourhp <= 0) {
-    cout << "Draw!";
-} else {
-    cout << "What just happened?";
-}
+                cout << "You Won!";
+                gainExperience(5); // Gain 50 EXP for defeating a rat
+            } else if (currentHp > 0 && yourhp <= 0) {
+                cout << "You Lose!";
+            } else {
+                cout << "Draw!";
+            }
             system("pause");
         }
     }
 
     void loadStats() {
-        string characterstats = currentuser.username + "stats.txt";
+    string characterstats = currentuser.username + "stats.txt";
 
-        ifstream inFile(characterstats);
-        if (!inFile.is_open()) {
-            cout << "Error: Unable to open file for reading!" << endl;
-            return;
-        }
-
-        string line;
-        if (getline(inFile, line)) {
-            stringstream ss(line);
-            string value;
-
-            getline(ss, value, ',');
-            currentstats.damage = stod(value);
-            getline(ss, value, ',');
-            currentstats.hp = stod(value);
-            getline(ss, value, ',');
-            currentstats.luck = stod(value);
-            getline(ss, value, ',');
-            currentstats.lvl = stod(value);
-            getline(ss, value, ',');
-            currentstats.exp = stod(value);
-            getline(ss, value, ',');
-            currentstats.extrastats = stoi(value);
-            getline(ss, value, ',');
-            currentstats.speed = stod(value);
-            getline(ss, value, ',');
-            currentstats.gold = stod(value);
-        }
-
-        inFile.close();
-        cout << "Stats loaded from " << characterstats << endl;
+    ifstream inFile(characterstats);
+    if (!inFile.is_open()) {
+        cout << "Error: Unable to open file for reading!" << endl;
+        return;
     }
 
-    void saveStats() {
-        string characterstats = currentuser.username + "stats.txt";
-        ofstream outFile(characterstats);
-        if (!outFile.is_open()) {
-            cout << "Error: Unable to open file for writing!" << endl;
-            return;
-        }
+    string line;
+    if (getline(inFile, line)) {
+        stringstream ss(line);
+        string value;
 
-        outFile << currentstats.damage << ","
-                << currentstats.hp << ","
-                << currentstats.luck << ","
-                << currentstats.lvl << ","
-                << currentstats.exp << ","
-                << currentstats.extrastats << ","
-                << currentstats.speed << ","
-                << currentstats.gold << endl;
-
-        outFile.close();
-        cout << "Stats saved to " << characterstats << endl;
+        getline(ss, value, ',');
+        currentstats.damage = stod(value);
+        getline(ss, value, ',');
+        currentstats.hp = stod(value);
+        getline(ss, value, ',');
+        currentstats.luck = stod(value);
+        getline(ss, value, ',');
+        currentstats.lvl = stod(value);
+        getline(ss, value, ',');
+        currentstats.exp = stod(value);
+        getline(ss, value, ',');
+        currentstats.neededExp = stod(value);
+        getline(ss, value, ',');
+        currentstats.extrastats = stoi(value);
+        getline(ss, value, ',');
+        currentstats.speed = stod(value);
+        getline(ss, value, ',');
+        currentstats.gold = stod(value);
     }
+
+    inFile.close();
+    cout << "Stats loaded from " << characterstats << endl;
+}
+
+void saveStats() {
+    expneeded();
+    string characterstats = currentuser.username + "stats.txt";
+    ofstream outFile(characterstats);
+    if (!outFile.is_open()) {
+        cout << "Error: Unable to open file for writing!" << endl;
+        return;
+    }
+
+    outFile << currentstats.damage << ","
+            << currentstats.hp << ","
+            << currentstats.luck << ","
+            << currentstats.lvl << ","
+            << currentstats.exp << ","
+            << currentstats.neededExp << ","
+            << currentstats.extrastats << ","
+            << currentstats.speed << ","
+            << currentstats.gold << endl;
+
+    outFile.close();
+    cout << "Stats saved to " << characterstats << endl;
+}
 
     void saveArmor() {
         string armorsave = "armaments.txt";
@@ -413,7 +420,7 @@ public:
 
     void loadArmor() {
         string armorsave = "armaments.txt";
-        ifstream inFile( armorsave);
+        ifstream inFile(armorsave);
         if (!inFile.is_open()) {
             cout << "Error: Unable to open file for reading!" << endl;
             return;
@@ -490,7 +497,7 @@ public:
             }
         }
 
-        inFile.close();
+ inFile.close();
         cout << "Weapon loaded from " << weaponsave << endl;
     }
 
@@ -557,7 +564,7 @@ public:
             }
         }
 
-        ofstream outFile("gameaccount.txt ", ios::app);
+        ofstream outFile("gameaccount.txt", ios::app);
         if (outFile.is_open()) {
             outFile << newUser .username << ","
                     << newUser .password << ","
@@ -572,12 +579,13 @@ public:
 
     void stats() {
         if (currentuser.role == "Archer") {
-            currentstats = {5, 1, 20, 0, 1, 0, 0};
+            currentstats = {5, 1, 20, 0, 0, 1, 0};
         } else if (currentuser.role == "Warrior") {
-            currentstats = {4, 1, 25, 0, 1, 0, 0};
+            currentstats = {4, 1, 25, 0, 0, 1, 0};
         } else if (currentuser.role == "Mage") {
-            currentstats = {6, 1, 15, 0, 1, 0, 0};
+            currentstats = {6, 1, 15, 0, 0, 1, 0};
         }
+        expneeded();
         saveStats();
     }
 
@@ -593,52 +601,53 @@ public:
     }
 
     void createarmament() {
-    int createchoice;
-    armaments newArmament;
-    cout << "Welcome to creation!" << endl;
-    cout << "Choose which one you want to create!" << endl;
-    cout << "1. Weapon" << endl;
-    cout << "2. Armor" << endl;
-    cin >> createchoice;
+        int createchoice;
+        armaments newArmament;
+        cout << "Welcome to creation!" << endl;
+        cout << "Choose which one you want to create!" << endl;
+        cout << "1. Weapon" << endl;
+        cout << "2. Armor" << endl;
+        cin >> createchoice;
 
-    if (createchoice == 1) {
-        cout << "Choose What types of Weapon you want to create (Bow(Archer), Sword(Warrior), Wand(Mage))" << endl;
-        cin >> newArmament.weapontype;
-        cout << "Choose What kind of weapon you want to create? "<<endl;
-        cout <<"\n(Basic "<<newArmament.weapontype<<")\n(Reinforced ";
-        cout << newArmament.weapontype<<")\n(Iron "<<newArmament.weapontype<<")\n(Shadowsteel "<<newArmament.weapontype<<")\n(Bluestin "<<newArmament.weapontype<<")";
-        cin >> newArmament.weapon;
-        cout << "What is the required level?";
-        cin >> newArmament.requiredlvl;
-        cout << "How much damage does it do?";
-        cin >> newArmament.weapondamage;
-        cout << "How many hp does it give?";
-        cin >> newArmament.weaponhp;
-        cout << "How much luck does it give?";
-        cin >> newArmament.weaponluck;
-        cout << "How much speed does it give?";
-        cin >> newArmament.weaponspeed;
-        armamentsList.push_back(newArmament);
-    } else if (createchoice == 2) {
-        cout << "Choose what kind of Armor you want? \n(Basic Armor)\n(Reinforced Armor)\n(Iron Armor)\n(Shadowsteel Armor)\n(Bluestin Armor)";
-        cin >> newArmament.armor;
-        cout << "What is the required level?";
-        cin >> newArmament.requiredlvl;
-        cout << "How much hp does it give?";
-        cin >> newArmament.armorhp;
-        cout << "How much damage does it give?";
-        cin >> newArmament.armordamage;
-        cout << "How much luck does it give?";
-        cin >> newArmament.armorluck;
-        cout << "How much speed does it give?";
-        cin >> newArmament.armorspeed;
-        armamentsList.push_back(newArmament);
+        if (createchoice == 1) {
+            cout << "Choose What types of Weapon you want to create (Bow(Archer), Sword(Warrior), Wand(Mage))" << endl;
+            cin >> newArmament.weapontype;
+            cout << "Choose What kind of weapon you want to create? "<<endl;
+            cout <<"\n(Basic "<<newArmament.weapontype<<")\n(Reinforced ";
+            cout << newArmament.weapontype<<")\n(Iron "<<newArmament.weapontype<<")\n(Shadowsteel "<<newArmament.weapontype<<")\n(Bluestin "<<newArmament.weapontype<<")";
+            cin >> newArmament.weapon;
+            cout << "What is the required level?";
+            cin >> newArmament.requiredlvl;
+            cout << "How much damage does it do?";
+            cin >> newArmament.weapondamage;
+            cout << "How many hp does it give?";
+            cin >> newArmament.weaponhp;
+            cout << "How much luck does it give?";
+            cin >> newArmament.weaponluck;
+            cout << "How much speed does it give?";
+            cin >> newArmament.weaponspeed;
+            armamentsList.push_back(newArmament);
+        } else if (createchoice == 2) {
+            cout << "Choose what kind of Armor you want? \n(Basic Armor)\n(Reinforced Armor)\n(Iron Armor)\n(Shadowsteel Armor)\n(Bluestin Armor)";
+            cin >> newArmament.armor;
+            cout << "What is the required level?";
+            cin >> newArmament.requiredlvl;
+            cout << "How much hp does it give?";
+            cin >> newArmament.armorhp;
+            cout << "How much damage does it give?";
+            cin >> newArmament.armordamage;
+            cout << "How much luck does it give?";
+            cin >> newArmament.armorluck;
+            cout << "How much speed does it give?";
+            cin >> newArmament.armorspeed;
+            armamentsList.push_back(newArmament);
+        }
+        if (createchoice == 1) {
+            saveWeapon();
+        } else if (createchoice == 2) {
+            saveArmor();
+        }
     }
-    if (createchoice == 1){saveWeapon();}
-    else if(createchoice == 2){saveArmor();}
-
-    return;
-}
 
     void deletearmament() {
         cout << "Delete armament functionality not implemented yet." << endl;
@@ -662,27 +671,27 @@ int main() {
         } else if (choice1 == 2) {
             if (gameInstance.login()) {
                 if (gameInstance.getcurrentuser().isAdmin) {
-                        while (true){
-                    gameInstance.clr();
-                    cout << "Admin Only" << endl;
-                    int adminchoice;
-                    cout << "1. Create\n2. Delete(Coming Soon)\n3. Update(Coming Soon)\n4. Logout\n5. View All Accounts\n";
-                    cin >> adminchoice;
+                    while (true) {
+                        gameInstance.clr();
+                        cout << "Admin Only" << endl;
+                        int adminchoice;
+                        cout << "1. Create\n2. Delete(Coming Soon)\n3. Update(Coming Soon)\n4. Logout\n5. View All Accounts\n";
+                        cin >> adminchoice;
 
-                    if (adminchoice == 1) {
-                        gameInstance.createarmament();
-                    } else if (adminchoice == 2) {
-                        gameInstance.deletearmament();
-                    } else if (adminchoice == 3) {
-                        gameInstance.updatearmament();
-                    } else if (adminchoice == 4) {
-                        break;
-                    } else if (adminchoice == 5) {
-                        gameInstance.showAllAccountsAndStats();
-                    } else {
-                        cout << "Invalid Choices!" << endl;
-                    }
+                        if (adminchoice == 1) {
+                            gameInstance.createarmament();
+                        } else if (adminchoice == 2) {
+                            gameInstance.deletearmament();
+                        } else if (adminchoice == 3) {
+                            gameInstance.updatearmament();
+                        } else if (adminchoice == 4) {
+                            break;
+                        } else if (adminchoice == 5) {
+                            gameInstance.showAllAccountsAndStats();
+                        } else {
+                            cout << "Invalid Choices!" << endl;
                         }
+                    }
                 } else {
                     gameInstance.clr();
                     cout << "Welcome!" << endl;
